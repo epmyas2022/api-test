@@ -27,24 +27,6 @@ class RepositoriesProvider extends ServiceProvider
             }
         );
 
-        // model validate  if extends of model class (personal model)
-
-
-        $this->app->singleton(Personal::class, function ($app) {
-            $id = $app['request']->route('personal');
-            $personalValidates =  new PersonalRequest();
-             $personal = Personal::find($id) ?? new Personal();
-            $personalValidates->loadModelValidation($personal);
-    
-            $personalValidates->validate();
-       
-        });
-
-
-
-
-        // request validate
-
 
     }
 

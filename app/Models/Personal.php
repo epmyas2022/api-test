@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-
+use App\Utils\VerifyModel;
 class Personal extends Model
 {
     use HasFactory;
@@ -27,6 +27,15 @@ class Personal extends Model
 
     ];
 
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $verifyModel = new VerifyModel($this);
+
+        return $verifyModel
+        ->validate($value, null, 'required|integer')
+        ->exists($value, "La persona con el id $value no fue encontrada");
+    }
 
     protected function firstName(): Attribute
     {

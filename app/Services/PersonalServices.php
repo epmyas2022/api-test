@@ -9,7 +9,6 @@ use App\Http\Requests\v1\GeneralRequest;
 use App\Http\Requests\v1\PersonalRequest;
 use App\Interfaces\PersonalRepository;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class PersonalServices
@@ -35,13 +34,12 @@ class PersonalServices
      * @return mixed
      * @throws \BadRequestException
      */
-    public function create()
+    public function create(MultiRequest $request)
     {
-        $data =  MultiRequest::make([
+        $data = $request->make([
             new PersonalRequest(),
             new GeneralRequest()
-        ])
-            ->getValidated();
+        ])->getValidated();
 
         /*  throw new BadRequestException('Error example'); */
 

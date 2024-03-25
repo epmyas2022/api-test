@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MultiRequest;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\PersonalServices;
 use App\Models\Personal;
@@ -24,9 +25,9 @@ class PersonalController extends Controller
         return response($personal, Response::HTTP_OK);
     }
 
-    function store()
+    function store(MultiRequest $request)
     {
-        $personal = $this->personalService->create();
+        $personal = $this->personalService->create($request);
         return response($personal, Response::HTTP_CREATED);
     }
 
@@ -34,16 +35,10 @@ class PersonalController extends Controller
     function update(Request $request, Personal $personal)
     {
 
-        dd($personal);
-       $personalValidates =  new PersonalRequest();
+     
 
-        $personalValidates->loadModelValidation($personal);
-
-        $personalValidates->validate();
-
-        $personal = $this->personalService->update($request->all(), $personal->id);
+        $this->personalService->update($request->all(), $personal->id);
         return response($personal, Response::HTTP_OK);
-  /*       $personal = $this->personalService->update($request->all(), $id); */
-        return response($personal, Response::HTTP_OK);
+
     }
 }

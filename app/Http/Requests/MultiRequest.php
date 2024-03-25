@@ -2,17 +2,30 @@
 
 namespace App\Http\Requests;
 
+/**
+ * Permit to validate multiples form requests validations
+ * @version 1.0.0
+ * @package App\Http\Requests
+ */
 class MultiRequest extends Request
 {
 
-    private array $rules;
-    private array $messages;
+    private array $rules = [];
+    private array $messages = [];
     private array $authorized = [];
 
-    public function __construct($requests)
+    public function __construct()
     {
         parent::__construct();
+    }
 
+    /**
+     * Create a new instance of the class
+     * @param array<App\Http\Requests\Request> $requests
+     * @return self
+     */
+    public function make($requests): self
+    {
         $requests = collect($requests);
 
         $this->rules = $requests->mapWithKeys(
@@ -28,15 +41,8 @@ class MultiRequest extends Request
             fn ($request) =>
             $request->authorize()
         )->toArray();
-    }
 
-    /**
-     * Create a new instance of the class
-     * @param array<App\Http\Requests\Request> $requests
-     */
-    public static function make($requests): MultiRequest
-    {
-        return new MultiRequest($requests);
+        return $this;
     }
     /**
      * Validate all the requests

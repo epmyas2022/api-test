@@ -34,44 +34,39 @@ class PersonalRequest extends Request
     public function rules(): array
     {
         return [
-            'id' => [
-                'required',
-                'integer',
-                'unique:personal,id'
-            ],
             'first_name' => [
-                'required',
+                $this->requiredIfMethod('POST'),
                 'string',
                 'max:255'
             ],
             'last_name' => [
-                'required',
+                $this->requiredIfMethod('POST'),
                 'string',
                 'max:255'
             ],
             'email' => [
-                'required',
+                $this->requiredIfMethod('POST'),
                 'string',
                 'max:255',
                 'email',
                 'unique:users,email'
             ],
             'gender' => [
-                'required',
+                $this->requiredIfMethod('POST'),
                 'string',
             ],
             'ip_address' => [
-                'required',
+                $this->requiredIfMethod('POST'),
                 'string',
                 'max:255'
             ],
             'country' => [
-                'required',
+                $this->requiredIfMethod('POST'),
                 'string',
                 Rule::enum(Pais::class)
             ],
             'language' => [
-                'required',
+                $this->requiredIfMethod('POST'),
                 'string',
                 Rule::enum(Language::class)
             ],
