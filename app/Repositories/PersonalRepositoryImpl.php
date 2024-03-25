@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Interfaces\PersonalRepository;
 use App\Models\Personal;
 
 
-class PersonalRepositoryImpl implements PersonalRepository  {
+class PersonalRepositoryImpl implements PersonalRepository
+{
 
     public function all()
     {
@@ -19,7 +21,9 @@ class PersonalRepositoryImpl implements PersonalRepository  {
 
     public function update(array $data, $id)
     {
-        Personal::find($id)->update($data);
+        $personal = Personal::find($id);
+        $personal->update($data);
+        return $personal;
     }
 
     public function delete($id)
@@ -36,5 +40,4 @@ class PersonalRepositoryImpl implements PersonalRepository  {
     {
         return Personal::find($id);
     }
-
 }
