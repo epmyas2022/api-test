@@ -6,9 +6,9 @@ use App\Http\Requests\v1\PersonalRequest;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\PersonalRepositoryImpl;
 use App\Services\PersonalServices;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Personal;
-
+use App\Repositories\UserRepositoryImpl;
+use App\Services\UserServices;
+use App\Services\AuthServices;
 class RepositoriesProvider extends ServiceProvider
 {
     /**
@@ -19,6 +19,9 @@ class RepositoriesProvider extends ServiceProvider
 
         $personalRepository = new PersonalRepositoryImpl();
         $personalServices = new PersonalServices($personalRepository);
+        $userRepository = new UserRepositoryImpl();
+        $userServices = new UserServices($userRepository);
+        $authServices = new AuthServices($userRepository);
 
         $this->app->bind(
             PersonalServices::class,
@@ -27,7 +30,19 @@ class RepositoriesProvider extends ServiceProvider
             }
         );
 
+        $this->app->bind(
+            UserServices::class,
+            function () use ($userServices) {
+                return $userServices;
+            }
+        );
 
+        $this->app->bind(
+            AuthServices::class,
+            function () use ($authServices) {
+                return $authServices;
+            }
+        );
     }
 
     /**

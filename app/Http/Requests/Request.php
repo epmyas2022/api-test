@@ -45,6 +45,14 @@ class Request extends FormRequest
     }
 
     /**
+     * Get the request method
+     * @return string
+     */
+    public function method()
+    {
+        return request()->method();
+    }
+    /**
      * Get all the request data
      * @param array<string>|null $keys
      */
@@ -61,7 +69,7 @@ class Request extends FormRequest
      */
     public function requiredIfMethod(string $method)
     {
-        return request()->method() == $method ? 'required' : 'nullable';
+        return $this->method() == $method ? 'required' : 'nullable';
     }
 
     /**

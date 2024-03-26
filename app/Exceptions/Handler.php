@@ -9,6 +9,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -37,6 +39,8 @@ class Handler extends ExceptionHandler
         AccessDeniedHttpException::class => Response::HTTP_FORBIDDEN,
         NotFoundHttpException::class => Response::HTTP_NOT_FOUND,
         UnprocessableEntityHttpException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        MethodNotAllowedHttpException::class => Response::HTTP_METHOD_NOT_ALLOWED,
+        JWTException::class => Response::HTTP_UNAUTHORIZED,
     
     ];
 

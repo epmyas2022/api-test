@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-
+require_once __DIR__ . '/auth/auth.php';
 require_once __DIR__ . '/personal/personal.php';
+require_once __DIR__ . '/user/user.php';
 

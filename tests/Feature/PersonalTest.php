@@ -10,7 +10,7 @@ class PersonalTest extends TestCase
 {
 
 
-    use RefreshDatabase;
+
     /**
      * A basic feature test example.
      */
@@ -25,15 +25,27 @@ class PersonalTest extends TestCase
     }
 
 
-   public function test_request_personal_should_422(): void
+    public function test_store(): void
     {
+        $response = $this->post('/api/v1/personal', [
+            "first_name" => "sssssss",
+            "last_name"  => "sssss",
+            "email" => "test@gmail.com",
+            "gender" => "M",
+            "ip_address" => "10.167.241.208",
+            "country" => "El Salvador",
+            "language" => "English",
+            "test" => "ssss"
+        ]);
+        $response->assertStatus(201);
+    }
 
-        $response = $this->postJson('/api/v1/personal', []);
+    public function test_update(): void
+    {
+        $response = $this->put('/api/v1/personal/1', [
+            "first_name" => "sssssss",
+        ]);
 
-        dump($response->getContent());
-        $response->assertStatus(422);
-    } 
-
-
-
+        $response->assertStatus(200);
+    }
 }
