@@ -8,6 +8,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class Authenticate extends Middleware
 {
+
+
     /**
      * Get the path the user should be redirected to when they are not authenticated.
      */
@@ -16,6 +18,7 @@ class Authenticate extends Middleware
         if (!$request->expectsJson()) {
             throw new AccessDeniedHttpException('Unauthorized access to this resource');
         }
+
         return null;
     }
 }

@@ -44,6 +44,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \G4T\Swagger\Middleware\SetJsonResponseMiddleware::class,
+            \Illuminate\Session\Middleware\StartSession::class
         ],
     ];
 
@@ -66,5 +67,6 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        '2fa' => \App\Http\Middleware\Authenticate2FA::class,
     ];
 }

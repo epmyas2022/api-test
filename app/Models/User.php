@@ -25,6 +25,8 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+        'two_fa_enabled',
+        'two_fa_verified'
     ];
 
     /**
@@ -64,6 +66,39 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
+    public function isTwoFAEnabled()
+    {
+        return $this->two_fa_enabled;
+    }
+
+    public function enableTwoFA()
+    {
+        $this->two_fa_enabled = true;
+        $this->save();
+    }
+
+    public function disableTwoFA()
+    {
+        $this->two_fa_enabled = false;
+        $this->save();
+    }
+
+    public function is2FAVerified()
+    {
+        return $this->two_fa_verified;
+    }
+
+    public function verifyTwoFA()
+    {
+        $this->two_fa_verified = true;
+        $this->save();
+    }
+
+    public function resetTwoFA()
+    {
+        $this->two_fa_verified = false;
+        $this->save();
+    }
 
     /**
      * Return a key value array, containing any custom claims to be added to the JWT.

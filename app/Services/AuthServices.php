@@ -9,24 +9,23 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Ramsey\Uuid\Uuid;
+use App\Enums\Method2FA;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendCode2FA;
+use App\Models\User;
+use App\Utils\SecurityCodeTwoFA;
 
 class AuthServices
 {
-
-
     private UserRepository $userRepository;
+    private SecurityCodeTwoFA $securityCodeTwoFA;
 
     public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
+        $this->securityCodeTwoFA = new SecurityCodeTwoFA();
     }
 
-    /**
-     * Response with token
-     * @param string $token
-     * @param string $refresh
-     * @return object [token, refresh_token]
-     */
     private function responseWithToken($token, $refresh)
     {
         return  (object) [
@@ -97,5 +96,54 @@ class AuthServices
         });
 
         return $this->responseWithToken($token, $refreshToken);
+    }
+
+
+    /**
+     * Send code 2FA
+     * @param Method2FA $method
+     * @param object $user
+     */
+    public function sendCode(Method2FA $method, User $user)
+    {
+        $codeSecurity = $this->securityCodeTwoFA->generate($user->id);
+
+        match ($method) {
+            Method2FA::SMS => $this->sendCode2FABySms($user, $codeSecurity),
+            Method2FA::EMAIL => $this->sendCode2FAByMail($user, $codeSecurity),
+        };
+    }
+
+    /**
+     * Verify code 2FA
+     * @param Request $request
+     */
+    public function verifyCode2FA(User $user, $code): void
+    {
+        if(!$this->securityCodeTwoFA->check($user->id, $code))
+            throw new AccessDeniedHttpException('Invalid code 2FA');
+
+        $user->verifyTwoFA();
+    }
+
+    /**
+     * Send code 2FA by mail
+     * @param object $user
+     * @param string $code
+     */
+    public function sendCode2FAByMail(object $user, string $code): void
+    {
+        // send code by mail
+        Mail::to($user->email)->send(new SendCode2FA($code, $user));
+    }
+
+    /**
+     * Send code 2FA by sms
+     * @param object $user
+     * @param string $code
+     */
+    public function sendCode2FABySms(object $user, string $code): void
+    {
+        // send code by sms
     }
 }
