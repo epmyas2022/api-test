@@ -11,11 +11,20 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Laravel\Sanctum\PersonalAccessToken;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Utils\SecurityCodeTwoFA;
+
 class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+
+    protected $securityCodeTwoFA;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->securityCodeTwoFA = new SecurityCodeTwoFA();
+    }
     /**
      * The attributes that are mass assignable.
      *
@@ -26,7 +35,8 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'two_fa_enabled',
-        'two_fa_verified'
+        'two_fa_verified',
+        'secret_code',
     ];
 
     /**
@@ -66,6 +76,14 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
+    public function secret()
+    {
+        if (!$this->secret_code) {
+            $this->secret_code = $this->securityCodeTwoFA->secret();
+            $this->save();
+        }
+        return $this->secret_code;
+    }
     public function isTwoFAEnabled()
     {
         return $this->two_fa_enabled;

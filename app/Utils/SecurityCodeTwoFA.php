@@ -2,49 +2,49 @@
 
 namespace App\Utils;
 
-use Ichtrojan\Otp\Otp;
 
+use OTPHP\TOTP;
 class SecurityCodeTwoFA
 {
-
-    protected Otp $Otp;
-
-    private string $type = 'numeric';
-    private int $length = 6;
-    private int $expired = 5;
-
-    public function __construct()
-    {
-        $this->Otp = new Otp();
-    }
-
-    /**
-     * Set the options for two-factor authentication code
-     * @param string $type
-     * @param int $length
-     * @param int $expired
-     * @return SecurityCodeTwoFA
-     */
-    public function options(string $type, int $length, int $expired): self
-    {
-        $this->type = $type;
-        $this->length = $length;
-        $this->expired = $expired;
-
-        return $this;
-    }
     /**
      * Generate a code for two-factor authentication
      * @param string|null $code
      * @param int $minutes
      * @return string
      */
-    public  function generate(mixed $id): string
+    public  function generate(string $secret): string
     {
-        $code = $this->Otp->generate($id, $this->type, $this->length, $this->expired);
+        $otp = TOTP::create($secret);
 
-        return $code->token;
+        $code = $otp->at(time());
+
+        return $code;
     }
+
+
+    /**
+     * Generate a secret for two-factor authentication
+     * @return string
+     */
+    public function secret(): string
+    {
+        $otp = TOTP::create();
+        $secret = $otp->getSecret();
+
+        return $secret;
+    }
+
+
+    public function uriProvisioning(string $secret, string $name, string $issuer ): string
+    {
+        $otp = TOTP::create($secret);
+
+        $otp->setLabel($name);
+        $otp->setIssuer($issuer);
+
+        return $otp->getProvisioningUri();
+    }
+
 
 
     /**
@@ -52,10 +52,10 @@ class SecurityCodeTwoFA
      * @param string $code
      * @return bool
      */
-    public  function check(mixed $id, string $code): bool
+    public  function check(string $secret, string $code): bool
     {
-        $check = $this->Otp->validate($id, $code);
+        $otp = TOTP::create($secret);
 
-        return $check->status;
+        return $otp->verify($code, time());
     }
 }

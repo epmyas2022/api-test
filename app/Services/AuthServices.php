@@ -106,8 +106,9 @@ class AuthServices
      */
     public function sendCode(Method2FA $method, User $user)
     {
-        $codeSecurity = $this->securityCodeTwoFA->generate($user->id);
+        $codeSecurity = $this->securityCodeTwoFA->generate($user->secret());
 
+        dd($this->securityCodeTwoFA->uriProvisioning($user->secret(), $user->name, 'MyApp'));
         match ($method) {
             Method2FA::SMS => $this->sendCode2FABySms($user, $codeSecurity),
             Method2FA::EMAIL => $this->sendCode2FAByMail($user, $codeSecurity),
@@ -120,7 +121,7 @@ class AuthServices
      */
     public function verifyCode2FA(User $user, $code): void
     {
-        if(!$this->securityCodeTwoFA->check($user->id, $code))
+        if(!$this->securityCodeTwoFA->check($user->secret(), $code))
             throw new AccessDeniedHttpException('Invalid code 2FA');
 
         $user->verifyTwoFA();

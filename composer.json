@@ -12,6 +12,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "spomky-labs/otphp": "^11.2",
         "tymon/jwt-auth": "^2.1"
     },
     "require-dev": {

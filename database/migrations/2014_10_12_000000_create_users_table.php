@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->boolean('two_fa_enabled')->default(false);
             $table->boolean('two_fa_verified')->default(false);
+            $table->string('secret_code')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
