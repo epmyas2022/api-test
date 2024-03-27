@@ -108,7 +108,6 @@ class AuthServices
     {
         $codeSecurity = $this->securityCodeTwoFA->generate($user->secret());
 
-        dd($this->securityCodeTwoFA->uriProvisioning($user->secret(), $user->name, 'MyApp'));
         match ($method) {
             Method2FA::SMS => $this->sendCode2FABySms($user, $codeSecurity),
             Method2FA::EMAIL => $this->sendCode2FAByMail($user, $codeSecurity),
