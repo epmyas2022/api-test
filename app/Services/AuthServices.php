@@ -106,8 +106,13 @@ class AuthServices
      */
     public function sendCode(Method2FA $method, User $user)
     {
-        $codeSecurity = $this->securityCodeTwoFA->generate($user->secret());
+        $secret = $user->secret();
 
+        if($this->securityCodeTwoFA->remainingTime($secret) <= 5)
+            $codeSecurity = $this->securityCodeTwoFA->nextCode($secret);
+        else
+            $codeSecurity = $this->securityCodeTwoFA->generate($secret);
+        
         match ($method) {
             Method2FA::SMS => $this->sendCode2FABySms($user, $codeSecurity),
             Method2FA::EMAIL => $this->sendCode2FAByMail($user, $codeSecurity),

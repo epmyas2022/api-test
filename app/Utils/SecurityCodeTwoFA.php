@@ -58,4 +58,31 @@ class SecurityCodeTwoFA
 
         return $otp->verify($code, time());
     }
+
+    /**
+     * Get the remaining time in seconds
+     * @param string $secret
+     * @return int
+     */
+    public function remainingTime(string $secret): int
+    {
+        $otp = TOTP::create($secret);
+
+        $result = $otp->expiresIn() ?? 0 - time();
+
+        return $result > 0 ? $result : 0;
+
+    }
+
+    /**
+     * Get the next code a generated
+     * @param string $secret
+     * @return string
+     */
+    public function nextCode(string $secret): string
+    {
+        $otp = TOTP::create($secret);
+
+        return $otp->at(time() + 30);
+    }
 }
