@@ -7,15 +7,15 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 
 class Request extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     protected $stopOnFirstFailure = false;
 
     protected $data = [];
+
+    protected $aditionalRules = [];
 
     function __construct()
     {
@@ -23,8 +23,8 @@ class Request extends FormRequest
     }
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @param ValidatorContract $validator
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     public function failedValidation(ValidatorContract $validator): void
     {
@@ -33,14 +33,26 @@ class Request extends FormRequest
 
     /**
      * Clean values null or empty from data
-     * @return  array<string, mixed>
+     * @param array $data
+     * @return self
      */
-    public function cleanData(array $data)
+    public function cleanData(array $data): self
     {
         $this->data = collect($data)->filter(
             fn ($value) => $value !== null
         )->toArray();
 
+        return $this;
+    }
+
+    /**
+     * Add additional rules to the request
+     * @param array $rules
+     * @return self
+     */
+    public function additionalRules(array $rules)
+    {
+        $this->aditionalRules = $rules;
         return $this;
     }
 
@@ -63,6 +75,15 @@ class Request extends FormRequest
     }
 
     /**
+     * Get the validation rules that apply to the request.
+     * @param ValidatorFactory $factory
+     * @return mixed $validator
+     */
+    protected function createDefaultValidator(ValidationFactory $factory)
+    {
+        return $this->validate();
+    }
+    /**
      * Get the request method
      * @param string $method
      * @return string required | nullable
@@ -74,19 +95,20 @@ class Request extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return mixed $validator
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     public function validate($rules = null, $messages = null, $data = null)
     {
 
         $validador = Validator::make(
             $data ?: $this->all(),
-            $rules ?: $this->rules(),
+            $rules ?: array_merge($this->rules(), $this->aditionalRules),
             $messages ?: $this->messages()
         );
 
         if (!$validador->fails()) {
-            return $validador->validate();
+            return $validador;
         }
 
         $this->failedValidation($validador);
