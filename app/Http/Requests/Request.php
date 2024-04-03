@@ -7,19 +7,24 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 
 class Request extends FormRequest
 {
+
+    /*Determine if stop on first failure is enabled*/
     protected $stopOnFirstFailure = false;
 
+    /*Data to validate*/
     protected $data = [];
 
+    /*Rules aditionals to validate*/
     protected $aditionalRules = [];
 
     function __construct()
     {
         $this->cleanData(request()->all());
+
+        $this->validate();
     }
     /**
      * Get the validation rules that apply to the request.
@@ -28,7 +33,10 @@ class Request extends FormRequest
      */
     public function failedValidation(ValidatorContract $validator): void
     {
-        throw new HttpResponseException(response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY));
+        throw new HttpResponseException(response()->json(
+            $validator->errors(),
+            Response::HTTP_UNPROCESSABLE_ENTITY
+        ));
     }
 
     /**
@@ -75,14 +83,15 @@ class Request extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     * @param ValidatorFactory $factory
-     * @return mixed $validator
+     * Validate that the method of rules exists
+     * @return array $rules
      */
-    protected function createDefaultValidator(ValidationFactory $factory)
+    protected function validationRules()
     {
-        return $this->validate();
+        return method_exists($this, 'rules') ? $this->rules() : [];
     }
+
+
     /**
      * Get the request method
      * @param string $method
@@ -100,10 +109,9 @@ class Request extends FormRequest
      */
     public function validate($rules = null, $messages = null, $data = null)
     {
-
         $validador = Validator::make(
             $data ?: $this->all(),
-            $rules ?: array_merge($this->rules(), $this->aditionalRules),
+            $rules ?: array_merge($this->validationRules(), $this->aditionalRules),
             $messages ?: $this->messages()
         );
 

@@ -7,7 +7,7 @@ use App\Enums\Pais;
 use App\Enums\Validate;
 use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
-
+use App\Http\Requests\MultiRequest;
 class PersonalRequest extends Request
 {
 
@@ -15,6 +15,14 @@ class PersonalRequest extends Request
     function __construct()
     {
         parent::__construct();
+
+        $multiRequest = new MultiRequest();
+
+        $multiRequest->make([
+            new GeneralRequest()
+        ]);
+
+        parent::additionalRules($multiRequest->rules());
     }
 
     /**
@@ -23,7 +31,7 @@ class PersonalRequest extends Request
     public function authorize(): bool
     {
 
-      
+
         return true;
     }
     /**
