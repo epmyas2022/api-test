@@ -71,8 +71,10 @@ class MultiRequest extends Request
     /**
      * Except rules from the request
      * @param array<string> $keys
+     * @return self
      */
-    public function exceptRules(array $keys)
+
+    public function except($keys): self
     {
         $this->rules = collect($this->rules)->except($keys)->toArray();
 
@@ -87,6 +89,18 @@ class MultiRequest extends Request
     public function rules(): array
     {
         return $this->rules;
+    }
+
+    /**
+     * Add rules to the request
+     * @param array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string> $rules
+     * @return self
+     */
+    public function addRules(array $rules): self
+    {
+        $this->rules = array_merge($this->rules, $rules);
+
+        return $this;
     }
 
     /**
