@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Factory;
+
 /**
  * Permit to validate multiples form requests validations
  * @version 1.0.0
@@ -10,14 +12,29 @@ namespace App\Http\Requests;
 class MultiRequest extends Request
 {
 
+    /**
+     * The rules to validate the request
+     * @var array
+     */
     private array $rules = [];
+
+    /**
+     * The messages to validate the request
+     * @var array
+     */
     private array $messages = [];
+
+    /**
+     * The authorized methods to validate the request
+     * @var array 
+     */
     private array $authorized = [];
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    /**
+     * The validator instance
+     * @var \Illuminate\Contracts\Validation\Validator
+     */
+    protected $validator;
 
     /**
      * Create a new instance of the class
@@ -26,46 +43,58 @@ class MultiRequest extends Request
      */
     public function make($requests): self
     {
-        $requests = collect($requests);
-
-        $this->rules = $requests->mapWithKeys(
-            fn ($request) => $request->rules()
-        )->toArray();
-
-        $this->messages = $requests->mapWithKeys(
-            fn ($request) =>
-            $request->messages()
-        )->toArray();
-
-        $this->authorized = $requests->map(
-            fn ($request) =>
-            $request->authorize()
-        )->toArray();
+       
+      
+        $this->rules = $this->getDataByMethod('rules', $requests);
+        $this->messages = $this->getDataByMethod('messages', $requests);
+        $this->authorized = $this->getDataByMethod('authorize', $requests, false);
 
         return $this;
+    }
+
+    /**
+     * Get the data returned by a method
+     * @param string $method
+     * @param array<App\Http\Requests\Request> $instances
+     * @return array $data
+     */
+    private function getDataByMethod(string $method, array $instances, bool $withKeys = true): array
+    {
+
+        if($withKeys)
+        return collect($instances)->mapWithKeys(
+            fn ($instance) => $instance->$method()
+        )->toArray();
+
+        return collect($instances)->map(
+            fn ($instance) => $instance->$method()
+        )->toArray();
     }
     /**
      * Validate all the requests
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function validates()
+
+    public function all($keys = null)
     {
-        if (!$this->authorize()) {
-            parent::failedAuthorization();
-        }
-        return parent::validate($this->rules, $this->messages);
+        return request()->all($keys);
     }
 
     /**
-     * Get all data validated from the requests
-     * @return array<string, mixed>
+     * Execute createDefaultValidator method for validate the request
+     * @return self
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
-    public function getValidated()
+    public function execute(): self
     {
-        $this->validates();
+        $this->validator = $this->createDefaultValidator(app(Factory::class));
 
-        return $this->all();
+        $this->setValidator($this->validator);
+
+        if ($this->validator->fails())
+            $this->failedValidation($this->validator);
+
+        return $this;
     }
 
     /**

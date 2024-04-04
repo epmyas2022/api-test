@@ -4,28 +4,28 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Define the base derived class FormRequest
+ * @version 1.0.0
+ * @package App\Http\Requests
+ */
 class Request extends FormRequest
 {
 
-    /*Determine if stop on first failure is enabled*/
+    /**
+     * Indicates whether validation should stop after the first rule failure.
+     * @var bool
+     */
     protected $stopOnFirstFailure = false;
 
-    /*Data to validate*/
-    protected $data = [];
-
-    /*Rules aditionals to validate*/
-    protected $aditionalRules = [];
-
-    function __construct()
-    {
-        $this->cleanData(request()->all());
-
-        $this->validate();
-    }
+    /**
+     * The validation rules aditionals that apply to the request.
+     * @return array
+     */
+    protected $rulesAditionals = [];
     /**
      * Get the validation rules that apply to the request.
      * @param ValidatorContract $validator
@@ -38,21 +38,6 @@ class Request extends FormRequest
             Response::HTTP_UNPROCESSABLE_ENTITY
         ));
     }
-
-    /**
-     * Clean values null or empty from data
-     * @param array $data
-     * @return self
-     */
-    public function cleanData(array $data): self
-    {
-        $this->data = collect($data)->filter(
-            fn ($value) => $value !== null
-        )->toArray();
-
-        return $this;
-    }
-
     /**
      * Add additional rules to the request
      * @param array $rules
@@ -60,7 +45,7 @@ class Request extends FormRequest
      */
     public function additionalRules(array $rules)
     {
-        $this->aditionalRules = $rules;
+        $this->rulesAditionals = $rules;
         return $this;
     }
 
@@ -72,26 +57,7 @@ class Request extends FormRequest
     {
         return request()->method();
     }
-    /**
-     * Get all the request data
-     * @param array<string>|null $keys
-     */
-
-    public function all($keys = null)
-    {
-        return $this->data;
-    }
-
-    /**
-     * Validate that the method of rules exists
-     * @return array $rules
-     */
-    protected function validationRules()
-    {
-        return method_exists($this, 'rules') ? $this->rules() : [];
-    }
-
-
+ 
     /**
      * Get the request method
      * @param string $method
@@ -102,23 +68,14 @@ class Request extends FormRequest
         return $this->method() == $method ? 'required' : 'nullable';
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     * @return mixed $validator
-     * @throws \Illuminate\Http\Exceptions\HttpResponseException
-     */
-    public function validate($rules = null, $messages = null, $data = null)
+    protected function validationRules()
     {
-        $validador = Validator::make(
-            $data ?: $this->all(),
-            $rules ?: array_merge($this->validationRules(), $this->aditionalRules),
-            $messages ?: $this->messages()
-        );
 
-        if (!$validador->fails()) {
-            return $validador;
-        }
+        $rules = method_exists($this, 'rules') ? $this->container->call([$this, 'rules']) : [];
 
-        $this->failedValidation($validador);
+        return array_merge($rules, $this->rulesAditionals);
     }
+
+
+ 
 }

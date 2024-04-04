@@ -4,25 +4,20 @@ namespace App\Http\Requests\v1;
 
 use App\Enums\Language;
 use App\Enums\Pais;
-use App\Enums\Validate;
 use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\MultiRequest;
+
 class PersonalRequest extends Request
 {
 
 
     function __construct()
     {
-        parent::__construct();
+   /*      parent::__construct(); */
+   
+    
 
-        $multiRequest = new MultiRequest();
-
-        $multiRequest->make([
-            new GeneralRequest()
-        ]);
-
-        parent::additionalRules($multiRequest->rules());
     }
 
     /**
@@ -41,9 +36,10 @@ class PersonalRequest extends Request
      */
     public function rules(): array
     {
+
         return [
             'first_name' => [
-                $this->requiredIfMethod('POST'),
+                'required',
                 'string',
                 'max:255'
             ],

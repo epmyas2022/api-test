@@ -34,19 +34,18 @@ class PersonalServices
      * @return mixed
      * @throws \BadRequestException
      */
-    public function create(PersonalRequest $request)
+    public function create(MultiRequest $request)
     {
-   /*      $data = $request->make([
+        $request->make([
             new PersonalRequest(),
             new GeneralRequest()
-        ])->getValidated(); */
+        ])->execute();
 
-        dd("Todo bien");
         /*  throw new BadRequestException('Error example'); */
 
-     /*    return  DB::transaction(function () use ($data) {
-            return $this->personalRepository->create($data);
-        }); */
+        return  DB::transaction(function () use ($request) {
+            return $this->personalRepository->create($request->validated());
+        });
     }
 
     /**
