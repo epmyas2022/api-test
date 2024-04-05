@@ -43,8 +43,8 @@ class MultiRequest extends Request
      */
     public function make($requests): self
     {
-       
-      
+
+
         $this->rules = $this->getDataByMethod('rules', $requests);
         $this->messages = $this->getDataByMethod('messages', $requests);
         $this->authorized = $this->getDataByMethod('authorize', $requests, false);
@@ -61,10 +61,10 @@ class MultiRequest extends Request
     private function getDataByMethod(string $method, array $instances, bool $withKeys = true): array
     {
 
-        if($withKeys)
-        return collect($instances)->mapWithKeys(
-            fn ($instance) => $instance->$method()
-        )->toArray();
+        if ($withKeys)
+            return collect($instances)->mapWithKeys(
+                fn ($instance) => $instance->$method()
+            )->toArray();
 
         return collect($instances)->map(
             fn ($instance) => $instance->$method()

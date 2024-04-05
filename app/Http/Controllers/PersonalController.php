@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Services\PersonalServices;
 use App\Models\Personal;
 use App\Http\Requests\Request;
+use Illuminate\Support\Facades\App;
+
 class PersonalController extends Controller
 {
     private PersonalServices  $personalService;
@@ -24,6 +26,8 @@ class PersonalController extends Controller
 
     function store(MultiRequest $request)
     {
+
+
         $personal = $this->personalService->create($request);
         return response($personal, Response::HTTP_CREATED);
     }

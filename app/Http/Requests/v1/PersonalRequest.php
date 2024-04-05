@@ -80,15 +80,10 @@ class PersonalRequest extends Request
 
     public function messages(): array
     {
+
+        //dd(trans('messages.hello', ['name' => 'John Doe']));
         return [
-            "first_name.required" => "El campo nombre es requerido",
-            "first_name.string" => "El campo nombre debe ser una cadena",
-            "first_name.max" => "El campo nombre debe tener un máximo de 255 caracteres",
-            "last_name.required"  => "El campo apellido es requerido",
-            "last_name.string" => "El campo apellido debe ser una cadena",
-            "last_name.max"  => "El campo apellido debe tener un máximo de 255 caracteres",
-            "email."  => "El campo email es requerido",
-            "country.Illuminate\Validation\Rules\Enum" => "El campo país debe ser un valor válido",
+   
 
         ];
     }
